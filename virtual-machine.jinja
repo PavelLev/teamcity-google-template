@@ -268,43 +268,6 @@ resources:
                 [Install]
                 WantedBy=multi-user.target
 
-            - name: "teamcity-agent.service"
-              command: "start"
-              content: |
-                [Unit]
-                Description=TeamCity Agent
-                After=teamcity-server.service coreos-metadata.service
-                Requires=teamcity-server.service coreos-metadata.service
-
-                [Service]
-                TimeoutStartSec=1200s
-                EnvironmentFile=/etc/teamcity/version
-                EnvironmentFile=/run/metadata/coreos
-{%- raw %}
-                ExecStartPre=/bin/sh -c "docker images --filter 'before=jetbrains/teamcity-agent:${TEAMCITY_VERSION}' --format '{{.ID}} {{.Repository}}' | grep 'jetbrains/teamcity-agent' | grep -Eo '^[^ ]+' | xargs -r docker rmi" %}
-{%- endraw %}
-                ExecStart=/usr/bin/docker run \
-                  -v /mnt/data/teamcity-agent/conf:/opt/buildagent/conf \
-                  -v /mnt/data/teamcity-agent/logs:/opt/buildagent/logs \
-                  -v /mnt/data/teamcity-agent/plugins:/opt/buildagent/plugins \
-                  -v /mnt/data/teamcity-agent/system:/opt/buildagent/system \
-                  -v /mnt/resource/teamcity-agent/temp:/opt/buildagent/temp \
-                  -v /mnt/resource/teamcity-server/temp:/opt/teamcity/temp \
-                  -v /mnt/data/teamcity-agent/tools:/opt/buildagent/tools \
-                  --privileged \
-                  -e DOCKER_IN_DOCKER=start \
-                  -e SERVER_URL={{ SERVER_URL }} \
-                  -e AGENT_NAME=Default \
-                  --name teamcity-agent \
-                  jetbrains/teamcity-agent:${TEAMCITY_VERSION}
-                ExecStop=-/usr/bin/docker exec teamcity-agent /opt/buildagent/bin/agent.sh stop
-                ExecStopPost=-/usr/bin/docker stop teamcity-agent
-                ExecStopPost=-/usr/bin/docker rm teamcity-agent
-                Restart=always
-
-                [Install]
-                WantedBy=multi-user.target
-
 {%- if properties['enableHttps'] %}
             - name: "{{ NGINX }}.service"
               command: "start"
@@ -358,33 +321,6 @@ resources:
                 [Install]
                 WantedBy=multi-user.target
 {%- endif %}
-
-            - name: "report-waiter-status.service"
-              enable: true
-              command: "start"
-              content: |
-                [Unit]
-{%- if properties['enableHttps'] %}
-                Requires=docker.service teamcity-server.service {{ NGINX }}.service {{ LETSENCRYPT }}.service
-{%- else %}
-                Requires=docker.service teamcity-server.service
-{%- endif  %}
-                Before=teamcity-agent.service
-                ConditionPathExists=!/etc/teamcity/waiter
-
-                [Service]
-                Type=oneshot
-                EnvironmentFile=/run/metadata/coreos
-{%- if properties['enableHttps'] %}
-                ExecStartPre=/bin/bash /etc/teamcity/checkCertificate.sh
-{%- endif  %}
-                ExecStartPre=/bin/bash -c "until $(curl --output /dev/null --silent --fail {{ SERVER_URL }}); do echo 'Waiting for success response from {{ SERVER_URL }}'; sleep 10; done;"
-                ExecStart=/usr/bin/docker run --rm  -e "CLOUDSDK_CORE_DISABLE_PROMPTS=1" google/cloud-sdk:alpine gcloud beta runtime-config configs variables set success/{{ properties['waiter']['name'] }} success --config-name {{ properties['waiter']['config'] }}
-                ExecStartPost=/usr/bin/docker rmi google/cloud-sdk:alpine
-                ExecStartPost=/bin/touch /etc/teamcity/waiter
-
-                [Install]
-                WantedBy=multi-user.target
     disks:
       - deviceName: boot
         type: PERSISTENT

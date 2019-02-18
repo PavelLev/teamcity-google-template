@@ -19,7 +19,6 @@ imports:
 - path: storage.jinja
 - path: teamcity.jinja
 - path: virtual-machine.jinja
-- path: waiter.jinja
 
 info:
   title: TeamCity Template
