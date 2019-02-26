@@ -13,8 +13,8 @@
 # limitations under the License.
 
 imports:
-- path: database.jinja
 - path: network.jinja
+- path: database.jinja
 - path: service-account.jinja
 - path: storage.jinja
 - path: teamcity.jinja

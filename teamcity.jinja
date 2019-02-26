@@ -34,6 +34,7 @@ resources:
   type: network.jinja
   properties:
     baseName: {{ BASE_NAME }}
+    zone: {{ properties['zone'] }}
     enableHttps: {{ ENABLE_HTTPS }}
 {%- endif %}
 
