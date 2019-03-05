@@ -14,25 +14,12 @@ limitations under the License.
 #}
 
 {% set BASE_NAME = properties['baseName'] + '-' + env['name'] %}
-{% set REGION = properties['zone'][:-2] %}
 
 resources:
 - name: {{ BASE_NAME }}
   type: compute.v1.network
   properties:
-    routingConfig:
-      routingMode: REGIONAL
-    autoCreateSubnetworks: false
-    subnetworks: [$(ref.{{ BASE_NAME }}-subnetwork.selfLink)]
-
-- name: {{ BASE_NAME }}-subnetwork
-  type: compute.v1.subnetwork
-  properties:
-    privateIpGoogleAccess: false
-    enableFlowLogs: false
-    region: {{ REGION }}
-    ipCidrRange: 10.240.0.0/16
-    network: $(ref.{{ BASE_NAME }}.selfLink)
+    IPv4Range: 10.240.0.0/16
 
 - name: {{ BASE_NAME }}-allow-http
   type: compute.v1.firewall
