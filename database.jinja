@@ -76,15 +76,15 @@ resources:
     name: root
     instance: $(ref.{{ BASE_NAME }}.name)
     host: "%"
-{%- endif %}}
+{%- endif %}
 
 outputs:
 - name: instance
 {%- if not properties['databaseInstance'] %}
   value: $(ref.{{ BASE_NAME }}.name)
-{%- else %}}
+{%- else %}
   value: {{ properties['databaseInstance'] }}
-{%- endif %}}
+{%- endif %}
 - name: name
   value: $(ref.create-database.name)
 - name: user
