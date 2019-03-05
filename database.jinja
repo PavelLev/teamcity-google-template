@@ -25,6 +25,7 @@ limitations under the License.
 {% endif %}
 
 resources:
+{%- if not properties['databaseInstance'] %}
 - name: {{ BASE_NAME }}
   type: gcp-types/sqladmin-v1beta4:instances
   properties:
@@ -75,10 +76,15 @@ resources:
     name: root
     instance: $(ref.{{ BASE_NAME }}.name)
     host: "%"
+{%- endif %}}
 
 outputs:
 - name: instance
+{%- if not properties['databaseInstance'] %}
   value: $(ref.{{ BASE_NAME }}.name)
+{%- else %}}
+  value: {{ properties['databaseInstance'] }}
+{%- endif %}}
 - name: name
   value: $(ref.create-database.name)
 - name: user

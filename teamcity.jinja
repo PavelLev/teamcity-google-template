@@ -22,18 +22,12 @@ limitations under the License.
 {%- endif %}
 
 resources:
-{%- if properties['databaseInstance'] %}
-  {%- set database.instance = properties['databaseInstance'] %}
-  {%- set database.name = 'teamcitydb' %}
-  {%- set database.user = 'teamcity' %}
-{%- else %}
 - name: database
   type: database.jinja
   properties:
     baseName: {{ BASE_NAME }}
     zone: {{ properties['zone'] }}
     size: {{ properties['installationSize'] }}
-{%- endif %}
 
 {%- if not properties['network'] %}
 - name: network
