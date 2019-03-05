@@ -86,6 +86,6 @@ outputs:
   value: {{ properties['databaseInstance'] }}
 {%- endif %}
 - name: name
-  value: $(ref.create-database.name)
+  value: {{ TEAMCITY_DB }}
 - name: user
   value: {{ TEAMCITY_USER }}
