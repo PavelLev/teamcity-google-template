@@ -28,6 +28,7 @@ resources:
     baseName: {{ BASE_NAME }}
     zone: {{ properties['zone'] }}
     size: {{ properties['installationSize'] }}
+    databaseInstance: {{ properties['databaseInstance'] }}
 
 {%- if not properties['network'] %}
 - name: network
